@@ -1,0 +1,14 @@
+[
+  {
+    "listing": "/index.html",
+    "items": [
+      "/posts/1-prob-theory-rand-var/index.html",
+      "/posts/2-clustering/index.html",
+      "/posts/3-linear-nonlinear-regression/index.html",
+      "/posts/4-classification/index.html",
+      "/posts/5-anomaly-outlier-detection/index.html",
+      "/posts/post-with-code/index.html",
+      "/posts/welcome/index.html"
+    ]
+  }
+]

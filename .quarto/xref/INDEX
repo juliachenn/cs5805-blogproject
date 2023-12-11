@@ -1,0 +1,29 @@
+{
+  "index.qmd": {
+    "index.html": "317643f7"
+  },
+  "about.qmd": {
+    "about.html": "2d520519"
+  },
+  "posts/post-with-code/index.qmd": {
+    "index.html": "f9dbbf83"
+  },
+  "posts/welcome/index.qmd": {
+    "index.html": "9416b682"
+  },
+  "posts/1-prob-theory-rand-var/index.qmd": {
+    "index.html": "36da1128"
+  },
+  "posts/5-anomaly-outlier-detection/index.qmd": {
+    "index.html": "4c6e3f2c"
+  },
+  "posts/4-classification/index.qmd": {
+    "index.html": "c1d1eeb6"
+  },
+  "posts/2-clustering/index.qmd": {
+    "index.html": "f0711b27"
+  },
+  "posts/3-linear-nonlinear-regression/index.qmd": {
+    "index.html": "f83776a4"
+  }
+}
