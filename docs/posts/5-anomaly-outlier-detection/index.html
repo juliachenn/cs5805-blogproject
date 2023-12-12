@@ -820,13 +820,15 @@ Estimated number of noise points: 71</code></pre>
 <span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    plt.grid()</span>
 <span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    plt.gca().set_axisbelow(<span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Now, let’s use the function above to plot our DBSCAN results.</p>
 <div class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.subplot(121)</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>plot_dbscan(db, x_data, size<span class="op">=</span><span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>plot_dbscan(db, x_data, size<span class="op">=</span><span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="index_files/figure-html/cell-11-output-1.png" class="img-fluid"></p>
 </div>
 </div>
+<p>We can see the anomalies shown in the plot (marked with an X).</p>
+<p>Now, let’s print the anomalies in a table format.</p>
 <div class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Anomalies:"</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1009,6 +1011,13 @@ Estimated number of noise points: 71</code></pre>
 <section id="resources" class="level2">
 <h2 class="anchored" data-anchor-id="resources">Resources</h2>
 <p>https://www.kaggle.com/datasets/rohan0301/unsupervised-learning-on-country-data/data</p>
+<p>https://github.com/maptv/handson-ml3/blob/main/09_unsupervised_learning.ipynb</p>
+<p>https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html</p>
+<p>https://www.kaggle.com/code/aditiani/kmeans-clustering-and-dbscan-for-country-data#Define-Clustering-Target</p>
+<p>https://scikit-learn.org/stable/auto_examples/cluster/plot_dbscan.html</p>
+<p>https://www.kaggle.com/code/tanmay111999/clustering-pca-k-means-dbscan-hierarchical#Modeling</p>
+<p>https://www.kaggle.com/code/chandrimad31/clustering-with-pca-kmeans-hierarchical-dbscan#(4)-DBSCAN-Clustering</p>
+<p>https://www.kdnuggets.com/2020/04/dbscan-clustering-algorithm-machine-learning.html</p>
 <p>https://commons.wikimedia.org/wiki/File:Physical_Map_of_the_World_(2021).svg</p>
 
 
