@@ -9,7 +9,7 @@
 <meta name="author" content="Julia Chen">
 <meta name="dcterms.date" content="2023-11-29">
 
-<title>cs5805-blogproject - Linear and Nonlinear Regression</title>
+<title>cs5805-blogproject - Linear and Nonlinear Regression: Laptop Price Prediction</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -61,6 +95,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../../styles.css">
@@ -88,7 +125,7 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/juliachenn/cs5805-blogproject" rel="" target=""><i class="bi bi-github" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
@@ -108,7 +145,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Linear and Nonlinear Regression</h1>
+      <h1 class="title">Linear and Nonlinear Regression: Laptop Price Prediction</h1>
                       </div>
   </div>
     
@@ -143,9 +180,655 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<p>This is a post with executable code.</p>
+<p>For this blog post, I will be demonstrating both linear and nonlinear regression with a dataset for laptop price prediction. Regression is a type of supervised learning, where the goal is the predict a numeric value. I will be using sklearn’s LinearRegression as well as polynomial regression and Random Forest regression to demonstrate nonlinear regression.</p>
+<section id="preparing-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-the-data">Preparing the data</h2>
+<p>We will first read in the dataset that’s in a csv file. It contains various specifications for each laptop that’s listed, such as screen resolution and memory.</p>
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> pd.read_csv(<span class="st">"laptop_price.csv"</span>, encoding<span class="op">=</span><span class="st">'latin-1'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>dataset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<div>
 
 
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">laptop_ID</th>
+<th data-quarto-table-cell-role="th">Company</th>
+<th data-quarto-table-cell-role="th">Product</th>
+<th data-quarto-table-cell-role="th">TypeName</th>
+<th data-quarto-table-cell-role="th">Inches</th>
+<th data-quarto-table-cell-role="th">ScreenResolution</th>
+<th data-quarto-table-cell-role="th">Cpu</th>
+<th data-quarto-table-cell-role="th">Ram</th>
+<th data-quarto-table-cell-role="th">Memory</th>
+<th data-quarto-table-cell-role="th">Gpu</th>
+<th data-quarto-table-cell-role="th">OpSys</th>
+<th data-quarto-table-cell-role="th">Weight</th>
+<th data-quarto-table-cell-role="th">Price_euros</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>Apple</td>
+<td>MacBook Pro</td>
+<td>Ultrabook</td>
+<td>13.3</td>
+<td>IPS Panel Retina Display 2560x1600</td>
+<td>Intel Core i5 2.3GHz</td>
+<td>8GB</td>
+<td>128GB SSD</td>
+<td>Intel Iris Plus Graphics 640</td>
+<td>macOS</td>
+<td>1.37kg</td>
+<td>1339.69</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2</td>
+<td>Apple</td>
+<td>Macbook Air</td>
+<td>Ultrabook</td>
+<td>13.3</td>
+<td>1440x900</td>
+<td>Intel Core i5 1.8GHz</td>
+<td>8GB</td>
+<td>128GB Flash Storage</td>
+<td>Intel HD Graphics 6000</td>
+<td>macOS</td>
+<td>1.34kg</td>
+<td>898.94</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>3</td>
+<td>HP</td>
+<td>250 G6</td>
+<td>Notebook</td>
+<td>15.6</td>
+<td>Full HD 1920x1080</td>
+<td>Intel Core i5 7200U 2.5GHz</td>
+<td>8GB</td>
+<td>256GB SSD</td>
+<td>Intel HD Graphics 620</td>
+<td>No OS</td>
+<td>1.86kg</td>
+<td>575.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>4</td>
+<td>Apple</td>
+<td>MacBook Pro</td>
+<td>Ultrabook</td>
+<td>15.4</td>
+<td>IPS Panel Retina Display 2880x1800</td>
+<td>Intel Core i7 2.7GHz</td>
+<td>16GB</td>
+<td>512GB SSD</td>
+<td>AMD Radeon Pro 455</td>
+<td>macOS</td>
+<td>1.83kg</td>
+<td>2537.45</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>5</td>
+<td>Apple</td>
+<td>MacBook Pro</td>
+<td>Ultrabook</td>
+<td>13.3</td>
+<td>IPS Panel Retina Display 2560x1600</td>
+<td>Intel Core i5 3.1GHz</td>
+<td>8GB</td>
+<td>256GB SSD</td>
+<td>Intel Iris Plus Graphics 650</td>
+<td>macOS</td>
+<td>1.37kg</td>
+<td>1803.60</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1298</td>
+<td>1316</td>
+<td>Lenovo</td>
+<td>Yoga 500-14ISK</td>
+<td>2 in 1 Convertible</td>
+<td>14.0</td>
+<td>IPS Panel Full HD / Touchscreen 1920x1080</td>
+<td>Intel Core i7 6500U 2.5GHz</td>
+<td>4GB</td>
+<td>128GB SSD</td>
+<td>Intel HD Graphics 520</td>
+<td>Windows 10</td>
+<td>1.8kg</td>
+<td>638.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1299</td>
+<td>1317</td>
+<td>Lenovo</td>
+<td>Yoga 900-13ISK</td>
+<td>2 in 1 Convertible</td>
+<td>13.3</td>
+<td>IPS Panel Quad HD+ / Touchscreen 3200x1800</td>
+<td>Intel Core i7 6500U 2.5GHz</td>
+<td>16GB</td>
+<td>512GB SSD</td>
+<td>Intel HD Graphics 520</td>
+<td>Windows 10</td>
+<td>1.3kg</td>
+<td>1499.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1300</td>
+<td>1318</td>
+<td>Lenovo</td>
+<td>IdeaPad 100S-14IBR</td>
+<td>Notebook</td>
+<td>14.0</td>
+<td>1366x768</td>
+<td>Intel Celeron Dual Core N3050 1.6GHz</td>
+<td>2GB</td>
+<td>64GB Flash Storage</td>
+<td>Intel HD Graphics</td>
+<td>Windows 10</td>
+<td>1.5kg</td>
+<td>229.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1301</td>
+<td>1319</td>
+<td>HP</td>
+<td>15-AC110nv (i7-6500U/6GB/1TB/Radeon</td>
+<td>Notebook</td>
+<td>15.6</td>
+<td>1366x768</td>
+<td>Intel Core i7 6500U 2.5GHz</td>
+<td>6GB</td>
+<td>1TB HDD</td>
+<td>AMD Radeon R5 M330</td>
+<td>Windows 10</td>
+<td>2.19kg</td>
+<td>764.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1302</td>
+<td>1320</td>
+<td>Asus</td>
+<td>X553SA-XX031T (N3050/4GB/500GB/W10)</td>
+<td>Notebook</td>
+<td>15.6</td>
+<td>1366x768</td>
+<td>Intel Celeron Dual Core N3050 1.6GHz</td>
+<td>4GB</td>
+<td>500GB HDD</td>
+<td>Intel HD Graphics</td>
+<td>Windows 10</td>
+<td>2.2kg</td>
+<td>369.00</td>
+</tr>
+</tbody>
+</table>
+
+<p>1303 rows × 13 columns</p>
+</div>
+</div>
+</div>
+<p>These are the original columns in the dataset:</p>
+<div class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dataset.columns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<pre><code>Index(['laptop_ID', 'Company', 'Product', 'TypeName', 'Inches',
+       'ScreenResolution', 'Cpu', 'Ram', 'Memory', 'Gpu', 'OpSys', 'Weight',
+       'Price_euros'],
+      dtype='object')</code></pre>
+</div>
+</div>
+<p>Here is more information on the dataset, including data types of the columns:</p>
+<div class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dataset.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 1303 entries, 0 to 1302
+Data columns (total 13 columns):
+ #   Column            Non-Null Count  Dtype  
+---  ------            --------------  -----  
+ 0   laptop_ID         1303 non-null   int64  
+ 1   Company           1303 non-null   object 
+ 2   Product           1303 non-null   object 
+ 3   TypeName          1303 non-null   object 
+ 4   Inches            1303 non-null   float64
+ 5   ScreenResolution  1303 non-null   object 
+ 6   Cpu               1303 non-null   object 
+ 7   Ram               1303 non-null   object 
+ 8   Memory            1303 non-null   object 
+ 9   Gpu               1303 non-null   object 
+ 10  OpSys             1303 non-null   object 
+ 11  Weight            1303 non-null   object 
+ 12  Price_euros       1303 non-null   float64
+dtypes: float64(2), int64(1), object(10)
+memory usage: 132.5+ KB</code></pre>
+</div>
+</div>
+<p>Since laptop_ID and Product won’t be useful in our regression (since there’s too many unique values), let’s drop them from the dataframe.</p>
+<div class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> dataset.drop(columns<span class="op">=</span>[<span class="st">'laptop_ID'</span>, <span class="st">"Product"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The Ram and Weight column values have the unit in them, let’s remove them and update the datatypes:</p>
+<div class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>dataset[<span class="st">"Ram"</span>] <span class="op">=</span> dataset[<span class="st">"Ram"</span>].<span class="bu">str</span>.replace(<span class="st">"GB"</span>, <span class="st">""</span>).astype(<span class="st">"int64"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>dataset[<span class="st">"Weight"</span>] <span class="op">=</span> dataset[<span class="st">"Weight"</span>].<span class="bu">str</span>.replace(<span class="st">"kg"</span>, <span class="st">""</span>).astype(<span class="bu">float</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, we can see the updated summary of our dataframe</p>
+<div class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dataset.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 1303 entries, 0 to 1302
+Data columns (total 11 columns):
+ #   Column            Non-Null Count  Dtype  
+---  ------            --------------  -----  
+ 0   Company           1303 non-null   object 
+ 1   TypeName          1303 non-null   object 
+ 2   Inches            1303 non-null   float64
+ 3   ScreenResolution  1303 non-null   object 
+ 4   Cpu               1303 non-null   object 
+ 5   Ram               1303 non-null   int64  
+ 6   Memory            1303 non-null   object 
+ 7   Gpu               1303 non-null   object 
+ 8   OpSys             1303 non-null   object 
+ 9   Weight            1303 non-null   float64
+ 10  Price_euros       1303 non-null   float64
+dtypes: float64(3), int64(1), object(7)
+memory usage: 112.1+ KB</code></pre>
+</div>
+</div>
+<p>Next, for the rest of the non-numerical columns (that are more categorical), let’s encode them with LabelEncoder.</p>
+<div class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> LabelEncoder</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>categorical_cols <span class="op">=</span> [<span class="st">'Company'</span>, <span class="st">"TypeName"</span>, <span class="st">"ScreenResolution"</span>, <span class="st">"Cpu"</span>, <span class="st">"Memory"</span>, <span class="st">"Gpu"</span>, <span class="st">"OpSys"</span>]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> categorical_cols:</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    dataset[col] <span class="op">=</span> LabelEncoder().fit_transform(dataset[col])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This is what our current dataframe looks like after the preprocessing:</p>
+<div class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dataset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Company</th>
+<th data-quarto-table-cell-role="th">TypeName</th>
+<th data-quarto-table-cell-role="th">Inches</th>
+<th data-quarto-table-cell-role="th">ScreenResolution</th>
+<th data-quarto-table-cell-role="th">Cpu</th>
+<th data-quarto-table-cell-role="th">Ram</th>
+<th data-quarto-table-cell-role="th">Memory</th>
+<th data-quarto-table-cell-role="th">Gpu</th>
+<th data-quarto-table-cell-role="th">OpSys</th>
+<th data-quarto-table-cell-role="th">Weight</th>
+<th data-quarto-table-cell-role="th">Price_euros</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>4</td>
+<td>13.3</td>
+<td>23</td>
+<td>65</td>
+<td>8</td>
+<td>4</td>
+<td>58</td>
+<td>8</td>
+<td>1.37</td>
+<td>1339.69</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>1</td>
+<td>4</td>
+<td>13.3</td>
+<td>1</td>
+<td>63</td>
+<td>8</td>
+<td>2</td>
+<td>51</td>
+<td>8</td>
+<td>1.34</td>
+<td>898.94</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>7</td>
+<td>3</td>
+<td>15.6</td>
+<td>8</td>
+<td>74</td>
+<td>8</td>
+<td>16</td>
+<td>53</td>
+<td>4</td>
+<td>1.86</td>
+<td>575.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>1</td>
+<td>4</td>
+<td>15.4</td>
+<td>25</td>
+<td>85</td>
+<td>16</td>
+<td>29</td>
+<td>9</td>
+<td>8</td>
+<td>1.83</td>
+<td>2537.45</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>1</td>
+<td>4</td>
+<td>13.3</td>
+<td>23</td>
+<td>67</td>
+<td>8</td>
+<td>16</td>
+<td>59</td>
+<td>8</td>
+<td>1.37</td>
+<td>1803.60</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1298</td>
+<td>10</td>
+<td>0</td>
+<td>14.0</td>
+<td>13</td>
+<td>89</td>
+<td>4</td>
+<td>4</td>
+<td>47</td>
+<td>5</td>
+<td>1.80</td>
+<td>638.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1299</td>
+<td>10</td>
+<td>0</td>
+<td>13.3</td>
+<td>19</td>
+<td>89</td>
+<td>16</td>
+<td>29</td>
+<td>47</td>
+<td>5</td>
+<td>1.30</td>
+<td>1499.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1300</td>
+<td>10</td>
+<td>3</td>
+<td>14.0</td>
+<td>0</td>
+<td>34</td>
+<td>2</td>
+<td>35</td>
+<td>40</td>
+<td>5</td>
+<td>1.50</td>
+<td>229.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1301</td>
+<td>7</td>
+<td>3</td>
+<td>15.6</td>
+<td>0</td>
+<td>89</td>
+<td>6</td>
+<td>10</td>
+<td>21</td>
+<td>5</td>
+<td>2.19</td>
+<td>764.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1302</td>
+<td>2</td>
+<td>3</td>
+<td>15.6</td>
+<td>0</td>
+<td>34</td>
+<td>4</td>
+<td>26</td>
+<td>40</td>
+<td>5</td>
+<td>2.20</td>
+<td>369.00</td>
+</tr>
+</tbody>
+</table>
+
+<p>1303 rows × 11 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>dataset.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 1303 entries, 0 to 1302
+Data columns (total 11 columns):
+ #   Column            Non-Null Count  Dtype  
+---  ------            --------------  -----  
+ 0   Company           1303 non-null   int32  
+ 1   TypeName          1303 non-null   int32  
+ 2   Inches            1303 non-null   float64
+ 3   ScreenResolution  1303 non-null   int32  
+ 4   Cpu               1303 non-null   int32  
+ 5   Ram               1303 non-null   int64  
+ 6   Memory            1303 non-null   int32  
+ 7   Gpu               1303 non-null   int32  
+ 8   OpSys             1303 non-null   int32  
+ 9   Weight            1303 non-null   float64
+ 10  Price_euros       1303 non-null   float64
+dtypes: float64(3), int32(7), int64(1)
+memory usage: 76.5 KB</code></pre>
+</div>
+</div>
+</section>
+<section id="linear-regression" class="level2">
+<h2 class="anchored" data-anchor-id="linear-regression">Linear Regression</h2>
+<p>With our preprocessed dataframe, let’s separate them into the x and y values by separating out the Price_euros column for y.</p>
+<div class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>x_values <span class="op">=</span> dataset.drop([<span class="st">'Price_euros'</span>], axis<span class="op">=</span><span class="dv">1</span>).values</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>y_values <span class="op">=</span> dataset[<span class="st">'Price_euros'</span>].values</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, let’s split the dataset into a training set and a testing set using train_test_split</p>
+<div class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>x_train, x_test, y_train, y_test<span class="op">=</span> train_test_split(x_values,y_values, shuffle<span class="op">=</span><span class="va">True</span>, test_size<span class="op">=</span><span class="fl">.3</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Scale data to make sure that columns are standarized using RobustScaler</p>
+<div class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> RobustScaler</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>robust_scaler <span class="op">=</span> RobustScaler()</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> robust_scaler.fit_transform(x_train)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>x_test <span class="op">=</span> robust_scaler.fit_transform(x_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can now import LinearRegression from sklearn and use it to fit the training data</p>
+<div class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>lin_reg <span class="op">=</span> LinearRegression()</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>lin_reg.fit(x_train, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="37">
+<style>#sk-container-id-3 {color: black;}#sk-container-id-3 pre{padding: 0;}#sk-container-id-3 div.sk-toggleable {background-color: white;}#sk-container-id-3 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-3 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-3 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-3 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-3 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-3 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-3 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-3 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-3 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-3 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-3 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-3 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-3 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-3 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-3 div.sk-item {position: relative;z-index: 1;}#sk-container-id-3 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-3 div.sk-item::before, #sk-container-id-3 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-3 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-3 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-3 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-3 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-3 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-3 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-3 div.sk-label-container {text-align: center;}#sk-container-id-3 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-3 div.sk-text-repr-fallback {display: none;}</style><div id="sk-container-id-3" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>LinearRegression()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-3" type="checkbox" checked=""><label for="sk-estimator-id-3" class="sk-toggleable__label sk-toggleable__label-arrow">LinearRegression</label><div class="sk-toggleable__content"><pre>LinearRegression()</pre></div></div></div></div></div>
+</div>
+</div>
+<p>Using the score method, we can get the coefficient of determination</p>
+<div class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>lin_reg.score(x_train, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="38">
+<pre><code>0.6761254164098996</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>lin_reg.score(x_test, y_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="39">
+<pre><code>0.6473397524255087</code></pre>
+</div>
+</div>
+<section id="scatterplot-of-predictions" class="level3">
+<h3 class="anchored" data-anchor-id="scatterplot-of-predictions">Scatterplot of predictions</h3>
+<div class="cell" data-execution_count="40">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> lin_reg.predict(x_test)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>plt.scatter(y_pred, y_test)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">5000</span>), <span class="bu">range</span>(<span class="dv">0</span>,<span class="dv">5000</span>), c<span class="op">=</span><span class="st">'red'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-17-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="nonlinear-regression" class="level2">
+<h2 class="anchored" data-anchor-id="nonlinear-regression">Nonlinear Regression</h2>
+<p>Now, let’s apply two different nonlinear regressions to the dataset.</p>
+<section id="polynomial-regression" class="level3">
+<h3 class="anchored" data-anchor-id="polynomial-regression">Polynomial Regression</h3>
+<p>Starting off with polynomial regression, we can use PolynomialFeatures from sklearn to preprocess the data to then pass into a LinearRegression.</p>
+<div class="cell" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> PolynomialFeatures</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>polynomial_features <span class="op">=</span> PolynomialFeatures(degree<span class="op">=</span><span class="dv">2</span>, include_bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>x_train_poly <span class="op">=</span> polynomial_features.fit_transform(x_train)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>lin_reg_poly <span class="op">=</span> LinearRegression()</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>lin_reg_poly.fit(x_train_poly, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="41">
+<style>#sk-container-id-4 {color: black;}#sk-container-id-4 pre{padding: 0;}#sk-container-id-4 div.sk-toggleable {background-color: white;}#sk-container-id-4 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-4 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-4 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-4 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-4 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-4 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-4 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-4 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-4 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-4 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-4 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-4 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-4 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-4 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-4 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-4 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-4 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-4 div.sk-item {position: relative;z-index: 1;}#sk-container-id-4 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-4 div.sk-item::before, #sk-container-id-4 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-4 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-4 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-4 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-4 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-4 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-4 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-4 div.sk-label-container {text-align: center;}#sk-container-id-4 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-4 div.sk-text-repr-fallback {display: none;}</style><div id="sk-container-id-4" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>LinearRegression()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-4" type="checkbox" checked=""><label for="sk-estimator-id-4" class="sk-toggleable__label sk-toggleable__label-arrow">LinearRegression</label><div class="sk-toggleable__content"><pre>LinearRegression()</pre></div></div></div></div></div>
+</div>
+</div>
+<p>Display the coefficient of determination with using the training and testing data.</p>
+<div class="cell" data-execution_count="42">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>lin_reg_poly.score(x_train_poly, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="42">
+<pre><code>0.7935136564934857</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="43">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>x_test_poly <span class="op">=</span> polynomial_features.fit_transform(x_test)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>lin_reg_poly.score(x_test_poly, y_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="43">
+<pre><code>0.6892366284789773</code></pre>
+</div>
+</div>
+<section id="scatterplot" class="level4">
+<h4 class="anchored" data-anchor-id="scatterplot">Scatterplot</h4>
+<p>Let’s display a scatter plot with the predictions using polynomial regression</p>
+<div class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> lin_reg_poly.predict(x_test_poly)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>plt.scatter(y_pred, y_test)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">5000</span>), <span class="bu">range</span>(<span class="dv">0</span>,<span class="dv">5000</span>), c<span class="op">=</span><span class="st">'red'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-21-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="randomforestregressor" class="level3">
+<h3 class="anchored" data-anchor-id="randomforestregressor">RandomForestRegressor</h3>
+<p>Now, let’s try RandomForestRegressor to perform nonlinear regression, which uses decision trees.</p>
+<div class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestRegressor</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>random_forest <span class="op">=</span> RandomForestRegressor()</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>random_forest.fit(x_train, y_train)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>random_forest.score(x_test, y_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="45">
+<pre><code>0.8238353733914368</code></pre>
+</div>
+</div>
+<section id="scatterplot-1" class="level4">
+<h4 class="anchored" data-anchor-id="scatterplot-1">Scatterplot</h4>
+<div class="cell" data-execution_count="46">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> random_forest.predict(x_test)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>plt.scatter(y_pred, y_test)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">5000</span>), <span class="bu">range</span>(<span class="dv">0</span>,<span class="dv">5000</span>), c<span class="op">=</span><span class="st">'red'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-23-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="resources" class="level2">
+<h2 class="anchored" data-anchor-id="resources">Resources</h2>
+<p>https://scikit-learn.org/stable/auto_examples/linear_model/plot_ols.html</p>
+<p>https://www.youtube.com/watch?v=wH_ezgftiy0</p>
+<p>https://www.kaggle.com/datasets/muhammetvarl/laptop-price/data</p>
+<p>https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html</p>
+<p>https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.RobustScaler.html</p>
+<p>https://learning.oreilly.com/library/view/hands-on-machine-learning/9781098125967/</p>
+<p>https://www.kaggle.com/code/ahmadmostafade/laptop-price-prediction</p>
+<p>https://www.kaggle.com/code/mohamedanwar11/laptop-price-prediction-linear-regression/notebook#data-scaling</p>
+<p>https://commons.wikimedia.org/wiki/Laptop [Picture]</p>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -227,6 +910,57 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
   function tippyHover(el, contentFn) {
     const config = {
       allowHTML: true,
@@ -385,4 +1119,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/juliachenn/cs5805-blogproject/blob/main/posts/3-linear-nonlinear-regression/index.ipynb" class="toc-action">View source</a></p></div></div></div></div></footer></body></html>

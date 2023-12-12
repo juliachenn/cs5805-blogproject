@@ -4,11 +4,13 @@ project:
 
 website:
   title: "cs5805-blogproject"
+  repo-url: https://github.com/juliachenn/cs5805-blogproject
+  repo-actions: [source]
   navbar:
     right:
       - about.qmd
       - icon: github
-        href: https://github.com/
+        href: https://github.com/juliachenn/cs5805-blogproject
       - icon: twitter
         href: https://twitter.com
 format:

@@ -9,7 +9,7 @@
 <meta name="author" content="Julia Chen">
 <meta name="dcterms.date" content="2023-11-29">
 
-<title>cs5805-blogproject - Clustering</title>
+<title>cs5805-blogproject - Clustering: Penguins</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -61,6 +95,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../../styles.css">
@@ -88,7 +125,7 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/juliachenn/cs5805-blogproject" rel="" target=""><i class="bi bi-github" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
@@ -108,7 +145,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Clustering</h1>
+      <h1 class="title">Clustering: Penguins</h1>
                       </div>
   </div>
     
@@ -143,9 +180,661 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<p>This is a post with executable code.</p>
+<section id="blog-post-2-clustering" class="level1">
+<h1>Blog Post 2: Clustering</h1>
+<p>For this blog post, I will be applying the concept of clustering to a dataset containing information about penguins (without data on species or their classification). Clustering is an unsupervised machine learning task that groups objects/instances together without having labels/classification. In this post, I will be using the clustering algorithm DBSCAN, which is short for “density-based spatial clustering of applications with noise.” There are many other clustering algorithms other than DBSCAN, such as k-means and spectral clustering.</p>
+<section id="prepare-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="prepare-the-data">Prepare the data</h2>
+<p>First, let’s read in our dataset from the csv file.</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> pd.read_csv(<span class="st">"penguins.csv"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>dataset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
 
 
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">culmen_length_mm</th>
+<th data-quarto-table-cell-role="th">culmen_depth_mm</th>
+<th data-quarto-table-cell-role="th">flipper_length_mm</th>
+<th data-quarto-table-cell-role="th">body_mass_g</th>
+<th data-quarto-table-cell-role="th">sex</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>39.1</td>
+<td>18.7</td>
+<td>181.0</td>
+<td>3750.0</td>
+<td>MALE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>39.5</td>
+<td>17.4</td>
+<td>186.0</td>
+<td>3800.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>40.3</td>
+<td>18.0</td>
+<td>195.0</td>
+<td>3250.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>36.7</td>
+<td>19.3</td>
+<td>193.0</td>
+<td>3450.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">339</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">340</td>
+<td>46.8</td>
+<td>14.3</td>
+<td>215.0</td>
+<td>4850.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">341</td>
+<td>50.4</td>
+<td>15.7</td>
+<td>222.0</td>
+<td>5750.0</td>
+<td>MALE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">342</td>
+<td>45.2</td>
+<td>14.8</td>
+<td>212.0</td>
+<td>5200.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">343</td>
+<td>49.9</td>
+<td>16.1</td>
+<td>213.0</td>
+<td>5400.0</td>
+<td>MALE</td>
+</tr>
+</tbody>
+</table>
+
+<p>344 rows × 5 columns</p>
+</div>
+</div>
+</div>
+<p>Since there’s rows with NaN values, let’s drop them:</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> dataset.dropna()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dataset[<span class="st">"sex"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>sex
+MALE      169
+FEMALE    165
+.           1
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<p>There is one penguin with ‘sex’ value just marked with ‘.’ Let’s remove it from the dataset</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> dataset[dataset[<span class="st">'sex'</span>] <span class="op">!=</span> <span class="st">"."</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dataset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">culmen_length_mm</th>
+<th data-quarto-table-cell-role="th">culmen_depth_mm</th>
+<th data-quarto-table-cell-role="th">flipper_length_mm</th>
+<th data-quarto-table-cell-role="th">body_mass_g</th>
+<th data-quarto-table-cell-role="th">sex</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>39.1</td>
+<td>18.7</td>
+<td>181.0</td>
+<td>3750.0</td>
+<td>MALE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>39.5</td>
+<td>17.4</td>
+<td>186.0</td>
+<td>3800.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>40.3</td>
+<td>18.0</td>
+<td>195.0</td>
+<td>3250.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>36.7</td>
+<td>19.3</td>
+<td>193.0</td>
+<td>3450.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5</td>
+<td>39.3</td>
+<td>20.6</td>
+<td>190.0</td>
+<td>3650.0</td>
+<td>MALE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">338</td>
+<td>47.2</td>
+<td>13.7</td>
+<td>214.0</td>
+<td>4925.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">340</td>
+<td>46.8</td>
+<td>14.3</td>
+<td>215.0</td>
+<td>4850.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">341</td>
+<td>50.4</td>
+<td>15.7</td>
+<td>222.0</td>
+<td>5750.0</td>
+<td>MALE</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">342</td>
+<td>45.2</td>
+<td>14.8</td>
+<td>212.0</td>
+<td>5200.0</td>
+<td>FEMALE</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">343</td>
+<td>49.9</td>
+<td>16.1</td>
+<td>213.0</td>
+<td>5400.0</td>
+<td>MALE</td>
+</tr>
+</tbody>
+</table>
+
+<p>334 rows × 5 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>dataset.describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">culmen_length_mm</th>
+<th data-quarto-table-cell-role="th">culmen_depth_mm</th>
+<th data-quarto-table-cell-role="th">flipper_length_mm</th>
+<th data-quarto-table-cell-role="th">body_mass_g</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">count</td>
+<td>334.000000</td>
+<td>334.000000</td>
+<td>334.000000</td>
+<td>334.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mean</td>
+<td>43.986826</td>
+<td>17.173952</td>
+<td>214.347305</td>
+<td>4207.185629</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">std</td>
+<td>5.461540</td>
+<td>1.973277</td>
+<td>263.648447</td>
+<td>804.009294</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">min</td>
+<td>32.100000</td>
+<td>13.100000</td>
+<td>-132.000000</td>
+<td>2700.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25%</td>
+<td>39.500000</td>
+<td>15.600000</td>
+<td>190.000000</td>
+<td>3550.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">50%</td>
+<td>44.450000</td>
+<td>17.300000</td>
+<td>197.000000</td>
+<td>4050.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">75%</td>
+<td>48.575000</td>
+<td>18.700000</td>
+<td>213.000000</td>
+<td>4768.750000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">max</td>
+<td>59.600000</td>
+<td>21.500000</td>
+<td>5000.000000</td>
+<td>6300.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Now, let’s separate the male and female penguins to form separate clusters for each.</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>dataset_male <span class="op">=</span> dataset[dataset[<span class="st">"sex"</span>] <span class="op">==</span> <span class="st">"MALE"</span>]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>dataset_female <span class="op">=</span> dataset[dataset[<span class="st">"sex"</span>] <span class="op">==</span> <span class="st">"FEMALE"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And make sure they don’t have null values:</p>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dataset_male.isnull().<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>culmen_length_mm     0
+culmen_depth_mm      0
+flipper_length_mm    0
+body_mass_g          0
+sex                  0
+dtype: int64</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dataset_female.isnull().<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>culmen_length_mm     0
+culmen_depth_mm      0
+flipper_length_mm    0
+body_mass_g          0
+sex                  0
+dtype: int64</code></pre>
+</div>
+</div>
+<p>Here’s some information about each dataset:</p>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dataset_male.describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">culmen_length_mm</th>
+<th data-quarto-table-cell-role="th">culmen_depth_mm</th>
+<th data-quarto-table-cell-role="th">flipper_length_mm</th>
+<th data-quarto-table-cell-role="th">body_mass_g</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">count</td>
+<td>169.000000</td>
+<td>169.000000</td>
+<td>169.000000</td>
+<td>169.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mean</td>
+<td>45.831953</td>
+<td>17.904734</td>
+<td>230.928994</td>
+<td>4543.934911</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">std</td>
+<td>5.359109</td>
+<td>1.866267</td>
+<td>370.226034</td>
+<td>785.610576</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">min</td>
+<td>34.600000</td>
+<td>14.100000</td>
+<td>-132.000000</td>
+<td>3250.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25%</td>
+<td>41.000000</td>
+<td>16.100000</td>
+<td>193.000000</td>
+<td>3900.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">50%</td>
+<td>46.800000</td>
+<td>18.500000</td>
+<td>201.000000</td>
+<td>4300.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">75%</td>
+<td>50.300000</td>
+<td>19.400000</td>
+<td>219.000000</td>
+<td>5300.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">max</td>
+<td>59.600000</td>
+<td>21.500000</td>
+<td>5000.000000</td>
+<td>6300.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dataset_female.describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">culmen_length_mm</th>
+<th data-quarto-table-cell-role="th">culmen_depth_mm</th>
+<th data-quarto-table-cell-role="th">flipper_length_mm</th>
+<th data-quarto-table-cell-role="th">body_mass_g</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">count</td>
+<td>165.000000</td>
+<td>165.000000</td>
+<td>165.000000</td>
+<td>165.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mean</td>
+<td>42.096970</td>
+<td>16.425455</td>
+<td>197.363636</td>
+<td>3862.272727</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">std</td>
+<td>4.903476</td>
+<td>1.795681</td>
+<td>12.500776</td>
+<td>666.172050</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">min</td>
+<td>32.100000</td>
+<td>13.100000</td>
+<td>172.000000</td>
+<td>2700.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25%</td>
+<td>37.600000</td>
+<td>14.500000</td>
+<td>187.000000</td>
+<td>3350.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">50%</td>
+<td>42.800000</td>
+<td>17.000000</td>
+<td>193.000000</td>
+<td>3650.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">75%</td>
+<td>46.200000</td>
+<td>17.800000</td>
+<td>210.000000</td>
+<td>4550.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">max</td>
+<td>58.000000</td>
+<td>20.700000</td>
+<td>222.000000</td>
+<td>5200.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Let’s create separate DataFrames for each attribute</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>culmen_length_mm <span class="op">=</span> pd.DataFrame({<span class="st">"Male"</span>: dataset_male[<span class="st">"culmen_length_mm"</span>], <span class="st">"Female"</span>: dataset_female[<span class="st">"culmen_length_mm"</span>]})</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>culmen_depth_mm <span class="op">=</span> pd.DataFrame({<span class="st">"Male"</span>: dataset_male[<span class="st">"culmen_length_mm"</span>], <span class="st">"Female"</span>: dataset_female[<span class="st">"culmen_length_mm"</span>]})</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>flipper_length_mm <span class="op">=</span> pd.DataFrame({<span class="st">"Male"</span>: dataset_male[<span class="st">"culmen_length_mm"</span>], <span class="st">"Female"</span>: dataset_female[<span class="st">"culmen_length_mm"</span>]})</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>body_mass_g <span class="op">=</span> pd.DataFrame({<span class="st">"Male"</span>: dataset_male[<span class="st">"culmen_length_mm"</span>], <span class="st">"Female"</span>: dataset_female[<span class="st">"culmen_length_mm"</span>]})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And display them in box plots</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>culmen_length_mm[[<span class="st">"Male"</span>, <span class="st">"Female"</span>]].plot(kind<span class="op">=</span><span class="st">"box"</span>, title<span class="op">=</span><span class="st">"culmen_length_mm"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> culmen_depth_mm[[<span class="st">"Male"</span>, <span class="st">"Female"</span>]].plot(kind<span class="op">=</span><span class="st">"box"</span>, title<span class="op">=</span><span class="st">"culmen_depth_mm"</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> flipper_length_mm[[<span class="st">"Male"</span>, <span class="st">"Female"</span>]].plot(kind<span class="op">=</span><span class="st">"box"</span>, title<span class="op">=</span><span class="st">"flipper_length_mm"</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> body_mass_g[[<span class="st">"Male"</span>, <span class="st">"Female"</span>]].plot(kind<span class="op">=</span><span class="st">"box"</span>, title<span class="op">=</span><span class="st">"body_mass_g"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-14-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-14-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-14-output-3.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-14-output-4.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="clustering" class="level2">
+<h2 class="anchored" data-anchor-id="clustering">Clustering</h2>
+<p>Now, let’s apply DBSCAN to our penguin datasets. Let’s first scale the x values for each dataset.</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>x_male_clusters <span class="op">=</span> StandardScaler().fit_transform(dataset_male[[<span class="st">'culmen_length_mm'</span>, <span class="st">'culmen_depth_mm'</span>, <span class="st">'flipper_length_mm'</span>,<span class="st">'body_mass_g'</span>]])</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>x_female_clusters <span class="op">=</span> StandardScaler().fit_transform(dataset_female[[<span class="st">'culmen_length_mm'</span>, <span class="st">'culmen_depth_mm'</span>, <span class="st">'flipper_length_mm'</span>,<span class="st">'body_mass_g'</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can then use DBSCAN to form clusters using the scaled datasets</p>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.cluster <span class="im">import</span> DBSCAN</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>dbscan_male <span class="op">=</span> DBSCAN(eps<span class="op">=</span><span class="fl">0.5</span>, min_samples<span class="op">=</span><span class="dv">4</span>).fit(x_male_clusters)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>dbscan_female <span class="op">=</span> DBSCAN(eps<span class="op">=</span><span class="fl">0.5</span>, min_samples<span class="op">=</span><span class="dv">4</span>).fit(x_female_clusters)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Using the results of the DBSCAN clustering, we can get the number of clusters and anomalies</p>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>labels_male <span class="op">=</span> dbscan_male.labels_</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>labels_female <span class="op">=</span> dbscan_female.labels_</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>anomalies_male <span class="op">=</span> <span class="bu">list</span>(labels_male).count(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>anomalies_female <span class="op">=</span> <span class="bu">list</span>(labels_female).count(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>clusters_male <span class="op">=</span> <span class="bu">len</span>(<span class="bu">set</span>(labels_male)) <span class="op">-</span> (<span class="dv">1</span> <span class="cf">if</span> anomalies_male <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>clusters_female <span class="op">=</span> <span class="bu">len</span>(<span class="bu">set</span>(labels_female)) <span class="op">-</span> (<span class="dv">1</span> <span class="cf">if</span> anomalies_female <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"---Male Penguins---"</span>)</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of clusters = </span><span class="sc">%d</span><span class="st">"</span> <span class="op">%</span> clusters_male)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of anomalies = </span><span class="sc">%d</span><span class="st">"</span> <span class="op">%</span> anomalies_male)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">---Female Penguins---"</span>)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of clusters = </span><span class="sc">%d</span><span class="st">"</span> <span class="op">%</span> clusters_female)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of anomalies = </span><span class="sc">%d</span><span class="st">"</span> <span class="op">%</span> anomalies_female)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>---Male Penguins---
+Number of clusters = 3
+Number of anomalies = 24
+
+---Female Penguins---
+Number of clusters = 3
+Number of anomalies = 51</code></pre>
+</div>
+</div>
+<p>This function is used to plot the DBSCAN results on a scatterplot [from: handson-ml3 unsupervised learning].</p>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">## Taken from handson-ml3 unsupervised learning</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_dbscan(dbscan, X, size, show_xlabels<span class="op">=</span><span class="va">True</span>, show_ylabels<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    core_mask <span class="op">=</span> np.zeros_like(dbscan.labels_, dtype<span class="op">=</span><span class="bu">bool</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    core_mask[dbscan.core_sample_indices_] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    anomalies_mask <span class="op">=</span> dbscan.labels_ <span class="op">==</span> <span class="op">-</span><span class="dv">1</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    non_core_mask <span class="op">=</span> <span class="op">~</span>(core_mask <span class="op">|</span> anomalies_mask)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    cores <span class="op">=</span> dbscan.components_</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    anomalies <span class="op">=</span> X[anomalies_mask]</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    non_cores <span class="op">=</span> X[non_core_mask]</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    plt.scatter(cores[:, <span class="dv">0</span>], cores[:, <span class="dv">1</span>],</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>                c<span class="op">=</span>dbscan.labels_[core_mask], marker<span class="op">=</span><span class="st">'o'</span>, s<span class="op">=</span>size, cmap<span class="op">=</span><span class="st">"Paired"</span>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    plt.scatter(cores[:, <span class="dv">0</span>], cores[:, <span class="dv">1</span>], marker<span class="op">=</span><span class="st">'*'</span>, s<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>                c<span class="op">=</span>dbscan.labels_[core_mask])</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    plt.scatter(anomalies[:, <span class="dv">0</span>], anomalies[:, <span class="dv">1</span>],</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>                c<span class="op">=</span><span class="st">"r"</span>, marker<span class="op">=</span><span class="st">"x"</span>, s<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    plt.scatter(non_cores[:, <span class="dv">0</span>], non_cores[:, <span class="dv">1</span>],</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>                c<span class="op">=</span>dbscan.labels_[non_core_mask], marker<span class="op">=</span><span class="st">"."</span>)</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> show_xlabels:</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>        plt.xlabel(<span class="st">"$x_1$"</span>)</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>        plt.tick_params(labelbottom<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> show_ylabels:</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>        plt.ylabel(<span class="st">"$x_2$"</span>, rotation<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>        plt.tick_params(labelleft<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"eps=</span><span class="sc">{</span>dbscan<span class="sc">.</span>eps<span class="sc">:.2f}</span><span class="ss">, min_samples=</span><span class="sc">{</span>dbscan<span class="sc">.</span>min_samples<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    plt.grid()</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    plt.gca().set_axisbelow(<span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Using the function above, plot the DBSCAN results for the male penguins and the female penguins.</p>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>plot_dbscan(dbscan_male, x_male_clusters, size<span class="op">=</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>plot_dbscan(dbscan_female, x_female_clusters, size<span class="op">=</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-20-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="resources" class="level2">
+<h2 class="anchored" data-anchor-id="resources">Resources</h2>
+<p>https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html</p>
+<p>https://scikit-learn.org/stable/auto_examples/cluster/plot_dbscan.html</p>
+<p>https://www.kaggle.com/datasets/youssefaboelwafa/clustering-penguins-species/data</p>
+<p>https://github.com/maptv/handson-ml3/blob/main/09_unsupervised_learning.ipynb</p>
+<p>https://www.kdnuggets.com/2020/04/dbscan-clustering-algorithm-machine-learning.html</p>
+<p>https://www.tutorialspoint.com/plot-multiple-boxplots-in-one-graph-in-pandas-or-matplotlib</p>
+<p>https://www.kaggle.com/code/kesyafebriana/clustering-penguins-species-using-dbscan</p>
+<p>https://commons.wikimedia.org/wiki/File:Adelie_Penguins_on_iceberg.jpg</p>
+
+
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -227,6 +916,57 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
   function tippyHover(el, contentFn) {
     const config = {
       allowHTML: true,
@@ -385,4 +1125,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/juliachenn/cs5805-blogproject/blob/main/posts/2-clustering/index.ipynb" class="toc-action">View source</a></p></div></div></div></div></footer></body></html>

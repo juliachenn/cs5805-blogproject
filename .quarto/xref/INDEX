@@ -25,5 +25,26 @@
   },
   "posts/3-linear-nonlinear-regression/index.qmd": {
     "index.html": "f83776a4"
+  },
+  "posts/4-classification/index.ipynb": {
+    "index.html": "a2c165c6"
+  },
+  "posts/3-linear-nonlinear-regression/index.ipynb": {
+    "index.html": "15ab1ac4"
+  },
+  "posts/1-prob-theory-rand-var/index.ipynb": {
+    "index.html": "017adb79"
+  },
+  "posts/5-anomaly-outlier-detection/index.ipynb": {
+    "index.html": "c8d3ce43"
+  },
+  "posts/2-clustering/2-clustering.ipynb": {
+    "2-clustering.html": "2c91e814"
+  },
+  "posts/1-prob-theory-rand-var/old.ipynb": {
+    "old.html": "5d6f5a1c"
+  },
+  "posts/2-clustering/index.ipynb": {
+    "index.html": "3a82ae34"
   }
 }

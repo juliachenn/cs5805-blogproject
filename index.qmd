@@ -1,5 +1,5 @@
 ---
-title: "cs5805-blogproject"
+title: "CS5805: Blog Project - Julia Chen"
 listing:
   contents: posts
   sort: "date desc"

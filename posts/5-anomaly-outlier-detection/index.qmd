@@ -1,9 +1,0 @@
----
-title: "Anomaly/Outlier Detection"
-author: "Julia Chen"
-date: "2023-11-29"
-categories: []
-image: "image.jpg"
----
-
-This is a post with executable code.

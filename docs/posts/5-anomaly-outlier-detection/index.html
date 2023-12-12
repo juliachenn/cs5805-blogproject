@@ -9,7 +9,7 @@
 <meta name="author" content="Julia Chen">
 <meta name="dcterms.date" content="2023-11-29">
 
-<title>cs5805-blogproject - Anomaly/Outlier Detection</title>
+<title>cs5805-blogproject - Anomaly/Outlier Detection: Country Data</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -61,6 +95,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../../styles.css">
@@ -88,7 +125,7 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/juliachenn/cs5805-blogproject" rel="" target=""><i class="bi bi-github" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
@@ -108,7 +145,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Anomaly/Outlier Detection</h1>
+      <h1 class="title">Anomaly/Outlier Detection: Country Data</h1>
                       </div>
   </div>
     
@@ -143,9 +180,839 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<p>This is a post with executable code.</p>
+<p>In this blog post, I will demonstate anomaly/outlier detection using country data (e.g.&nbsp;information on health, economics, etc). I’ll be using DBSCAN to find anomalies that lie outside clusters.</p>
+<section id="preparing-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-the-data">Preparing the Data</h2>
+<p>First, let’s read in the country data from the csv file.</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> pd.read_csv(<span class="st">"country_data/Country-data.csv"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>dataset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
 
 
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">country</th>
+<th data-quarto-table-cell-role="th">child_mort</th>
+<th data-quarto-table-cell-role="th">exports</th>
+<th data-quarto-table-cell-role="th">health</th>
+<th data-quarto-table-cell-role="th">imports</th>
+<th data-quarto-table-cell-role="th">income</th>
+<th data-quarto-table-cell-role="th">inflation</th>
+<th data-quarto-table-cell-role="th">life_expec</th>
+<th data-quarto-table-cell-role="th">total_fer</th>
+<th data-quarto-table-cell-role="th">gdpp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Afghanistan</td>
+<td>90.2</td>
+<td>10.0</td>
+<td>7.58</td>
+<td>44.9</td>
+<td>1610</td>
+<td>9.44</td>
+<td>56.2</td>
+<td>5.82</td>
+<td>553</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Albania</td>
+<td>16.6</td>
+<td>28.0</td>
+<td>6.55</td>
+<td>48.6</td>
+<td>9930</td>
+<td>4.49</td>
+<td>76.3</td>
+<td>1.65</td>
+<td>4090</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Algeria</td>
+<td>27.3</td>
+<td>38.4</td>
+<td>4.17</td>
+<td>31.4</td>
+<td>12900</td>
+<td>16.10</td>
+<td>76.5</td>
+<td>2.89</td>
+<td>4460</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Angola</td>
+<td>119.0</td>
+<td>62.3</td>
+<td>2.85</td>
+<td>42.9</td>
+<td>5900</td>
+<td>22.40</td>
+<td>60.1</td>
+<td>6.16</td>
+<td>3530</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Antigua and Barbuda</td>
+<td>10.3</td>
+<td>45.5</td>
+<td>6.03</td>
+<td>58.9</td>
+<td>19100</td>
+<td>1.44</td>
+<td>76.8</td>
+<td>2.13</td>
+<td>12200</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">162</td>
+<td>Vanuatu</td>
+<td>29.2</td>
+<td>46.6</td>
+<td>5.25</td>
+<td>52.7</td>
+<td>2950</td>
+<td>2.62</td>
+<td>63.0</td>
+<td>3.50</td>
+<td>2970</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">163</td>
+<td>Venezuela</td>
+<td>17.1</td>
+<td>28.5</td>
+<td>4.91</td>
+<td>17.6</td>
+<td>16500</td>
+<td>45.90</td>
+<td>75.4</td>
+<td>2.47</td>
+<td>13500</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">164</td>
+<td>Vietnam</td>
+<td>23.3</td>
+<td>72.0</td>
+<td>6.84</td>
+<td>80.2</td>
+<td>4490</td>
+<td>12.10</td>
+<td>73.1</td>
+<td>1.95</td>
+<td>1310</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">165</td>
+<td>Yemen</td>
+<td>56.3</td>
+<td>30.0</td>
+<td>5.18</td>
+<td>34.4</td>
+<td>4480</td>
+<td>23.60</td>
+<td>67.5</td>
+<td>4.67</td>
+<td>1310</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">166</td>
+<td>Zambia</td>
+<td>83.1</td>
+<td>37.0</td>
+<td>5.89</td>
+<td>30.9</td>
+<td>3280</td>
+<td>14.00</td>
+<td>52.0</td>
+<td>5.40</td>
+<td>1460</td>
+</tr>
+</tbody>
+</table>
+
+<p>167 rows × 10 columns</p>
+</div>
+</div>
+</div>
+<p>Here are the descriptions of each field.</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pd.read_csv(<span class="st">"country_data/data-dictionary.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Column Name</th>
+<th data-quarto-table-cell-role="th">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>country</td>
+<td>Name of the country</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>child_mort</td>
+<td>Death of children under 5 years of age per 100...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>exports</td>
+<td>Exports of goods and services per capita. Give...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>health</td>
+<td>Total health spending per capita. Given as %ag...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>imports</td>
+<td>Imports of goods and services per capita. Give...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>Income</td>
+<td>Net income per person</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>Inflation</td>
+<td>The measurement of the annual growth rate of t...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>life_expec</td>
+<td>The average number of years a new born child w...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>total_fer</td>
+<td>The number of children that would be born to e...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>gdpp</td>
+<td>The GDP per capita. Calculated as the Total GD...</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>And more information on our country dataset:</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dataset.columns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>Index(['country', 'child_mort', 'exports', 'health', 'imports', 'income',
+       'inflation', 'life_expec', 'total_fer', 'gdpp'],
+      dtype='object')</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dataset.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 167 entries, 0 to 166
+Data columns (total 10 columns):
+ #   Column      Non-Null Count  Dtype  
+---  ------      --------------  -----  
+ 0   country     167 non-null    object 
+ 1   child_mort  167 non-null    float64
+ 2   exports     167 non-null    float64
+ 3   health      167 non-null    float64
+ 4   imports     167 non-null    float64
+ 5   income      167 non-null    int64  
+ 6   inflation   167 non-null    float64
+ 7   life_expec  167 non-null    float64
+ 8   total_fer   167 non-null    float64
+ 9   gdpp        167 non-null    int64  
+dtypes: float64(7), int64(2), object(1)
+memory usage: 13.2+ KB</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>dataset.describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">child_mort</th>
+<th data-quarto-table-cell-role="th">exports</th>
+<th data-quarto-table-cell-role="th">health</th>
+<th data-quarto-table-cell-role="th">imports</th>
+<th data-quarto-table-cell-role="th">income</th>
+<th data-quarto-table-cell-role="th">inflation</th>
+<th data-quarto-table-cell-role="th">life_expec</th>
+<th data-quarto-table-cell-role="th">total_fer</th>
+<th data-quarto-table-cell-role="th">gdpp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">count</td>
+<td>167.000000</td>
+<td>167.000000</td>
+<td>167.000000</td>
+<td>167.000000</td>
+<td>167.000000</td>
+<td>167.000000</td>
+<td>167.000000</td>
+<td>167.000000</td>
+<td>167.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mean</td>
+<td>38.270060</td>
+<td>41.108976</td>
+<td>6.815689</td>
+<td>46.890215</td>
+<td>17144.688623</td>
+<td>7.781832</td>
+<td>70.555689</td>
+<td>2.947964</td>
+<td>12964.155689</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">std</td>
+<td>40.328931</td>
+<td>27.412010</td>
+<td>2.746837</td>
+<td>24.209589</td>
+<td>19278.067698</td>
+<td>10.570704</td>
+<td>8.893172</td>
+<td>1.513848</td>
+<td>18328.704809</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">min</td>
+<td>2.600000</td>
+<td>0.109000</td>
+<td>1.810000</td>
+<td>0.065900</td>
+<td>609.000000</td>
+<td>-4.210000</td>
+<td>32.100000</td>
+<td>1.150000</td>
+<td>231.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25%</td>
+<td>8.250000</td>
+<td>23.800000</td>
+<td>4.920000</td>
+<td>30.200000</td>
+<td>3355.000000</td>
+<td>1.810000</td>
+<td>65.300000</td>
+<td>1.795000</td>
+<td>1330.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">50%</td>
+<td>19.300000</td>
+<td>35.000000</td>
+<td>6.320000</td>
+<td>43.300000</td>
+<td>9960.000000</td>
+<td>5.390000</td>
+<td>73.100000</td>
+<td>2.410000</td>
+<td>4660.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">75%</td>
+<td>62.100000</td>
+<td>51.350000</td>
+<td>8.600000</td>
+<td>58.750000</td>
+<td>22800.000000</td>
+<td>10.750000</td>
+<td>76.800000</td>
+<td>3.880000</td>
+<td>14050.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">max</td>
+<td>208.000000</td>
+<td>200.000000</td>
+<td>17.900000</td>
+<td>174.000000</td>
+<td>125000.000000</td>
+<td>104.000000</td>
+<td>82.800000</td>
+<td>7.490000</td>
+<td>105000.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="using-dbscan-to-find-anomalies" class="level2">
+<h2 class="anchored" data-anchor-id="using-dbscan-to-find-anomalies">Using DBSCAN to Find Anomalies</h2>
+<p>Let’s import some libraries that we’ll need:</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.cluster <span class="im">import</span> DBSCAN</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s use some of the fields as our x values and scale them.</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>x_data <span class="op">=</span> dataset[[<span class="st">'total_fer'</span>, <span class="st">'imports'</span>, <span class="st">'gdpp'</span>]]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>x_data <span class="op">=</span> StandardScaler().fit_transform(x_data)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>x_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>array([[ 1.90288227e+00, -8.24549559e-02, -6.79179609e-01],
+       [-8.59972814e-01,  7.08366942e-02, -4.85623236e-01],
+       [-3.84043958e-02, -6.41762328e-01, -4.65375609e-01],
+       [ 2.12815103e+00, -1.65315307e-01, -5.16268293e-01],
+       [-5.41946330e-01,  4.97567504e-01, -4.18171341e-02],
+       [-3.82933087e-01, -1.27978703e+00, -1.45791437e-01],
+       [-8.33470607e-01, -6.58828857e-02, -5.33232522e-01],
+       [-6.74457365e-01, -1.07677917e+00,  2.13069856e+00],
+       [-9.99109401e-01,  3.76925537e-02,  1.85708197e+00],
+       [-6.81082917e-01, -1.08506521e+00, -3.89857431e-01],
+       [-7.20836227e-01, -1.32171167e-01,  8.22811276e-01],
+       [-5.22069674e-01,  1.66126098e-01,  4.23331061e-01],
+       [-4.09435294e-01, -1.03949202e+00, -6.67961329e-01],
+       [-7.73840641e-01,  7.49797118e-02,  1.66131471e-01],
+       [-9.65981642e-01,  7.29576488e-01, -3.79460001e-01],
+       [-7.20836227e-01,  1.15216428e+00,  1.72027368e+00],
+       [-1.57664328e-01,  4.39565258e-01, -4.71942407e-01],
+       [ 1.59810689e+00, -4.01467309e-01, -6.67961329e-01],
+       [-3.76307536e-01,  9.86443578e-01, -5.90144772e-01],
+       [ 1.66987709e-01, -5.21614819e-01, -6.01089435e-01],
+       [-1.08524157e+00,  1.82698169e-01, -4.57167111e-01],
+       [-4.50299476e-02,  1.82698169e-01, -3.61948539e-01],
+       [-7.60589538e-01, -1.45379377e+00, -9.65404512e-02],
+       [-7.34087331e-01, -7.82624926e-01,  1.22229149e+00],
+       [-9.12977228e-01,  2.53129467e-01, -3.35134114e-01],
+       [ 1.93601003e+00, -7.16336645e-01, -6.77975696e-01],
+       [ 2.19440655e+00, -3.18606958e-01, -6.96800517e-01],
+       [-4.50299476e-02,  5.22425610e-01, -6.66429076e-01],
+       [ 1.43246810e+00, -8.24055101e-01, -6.37754057e-01],
+       [-8.73223918e-01, -6.58334399e-01,  1.88444363e+00],
+       [-1.84166535e-01,  6.17715014e-01, -5.28307423e-01],
+       [ 1.49872361e+00, -8.44770189e-01, -6.85035003e-01],
+       [ 2.41304976e+00, -1.40457202e-01, -6.60354787e-01],
+       [-7.07585124e-01, -6.45905346e-01, -3.51081209e-03],
+       [-8.99726125e-01, -1.00634787e+00, -4.59903277e-01],
+       [-6.21452951e-01, -1.20521272e+00, -3.67420871e-01],
+       [ 1.19394823e+00,  1.99270239e-01, -6.67359372e-01],
+       [ 2.37992200e+00,  1.12266870e-01, -6.91164015e-01],
+       [ 1.32645927e+00,  3.23560766e-01, -5.59499714e-01],
+       [-6.81082917e-01, -4.92613696e-01, -2.60710403e-01],
+       [ 1.53847692e+00, -1.48743237e-01, -6.42679156e-01],
+       [-9.26228332e-01, -3.64180151e-01,  2.93231782e-02],
+       [-1.01236050e+00,  4.39565258e-01,  9.76036564e-01],
+       [-9.52730539e-01,  6.63288207e-01,  3.74080076e-01],
+       [-7.14210675e-01, -1.36314184e-01,  2.46451079e+00],
+       [-2.30545397e-01, -5.63044994e-01, -4.11199525e-01],
+       [-1.90792086e-01, -6.00332153e-01, -4.54430945e-01],
+       [ 1.60362157e-01, -8.40627172e-01, -5.67160978e-01],
+       [-4.49188605e-01, -1.20236572e-02, -5.45818885e-01],
+       [ 1.49872361e+00,  4.97567504e-01,  2.26327120e-01],
+       [ 1.10119051e+00, -9.77346752e-01, -6.83064964e-01],
+       [-8.13593952e-01,  9.03583226e-01,  8.95188270e-02],
+       [-1.84166535e-01,  7.04718383e-01, -5.09701495e-01],
+       [-7.14210675e-01, -3.93181274e-01,  1.81877565e+00],
+       [-6.08201847e-01, -7.78481908e-01,  1.51232507e+00],
+       [ 7.50036264e-01, -1.15963952e+00, -2.30612578e-01],
+       [ 1.83000120e+00, -1.73601343e-01, -6.78687099e-01],
+       [-6.81082917e-01,  2.44843432e-01, -5.47460584e-01],
+       [-1.03223716e+00, -4.05610327e-01,  1.57799305e+00],
+       [ 8.75921747e-01, -4.10247802e-02, -6.37754057e-01],
+       [-9.72607194e-01, -6.70763451e-01,  7.62615628e-01],
+       [-4.69065260e-01,  9.56947997e-02, -3.06130756e-01],
+       [ 2.86247640e-01, -4.38754467e-01, -5.54574615e-01],
+       [ 1.58485579e+00, -1.52886255e-01, -6.73980893e-01],
+       [ 1.39271478e+00, -4.84327661e-01, -6.79507948e-01],
+       [-1.97417638e-01,  1.33445705e+00, -5.43082719e-01],
+       [ 2.53119882e-01,  7.37862523e-01, -6.73214767e-01],
+       [-1.12499488e+00,  1.22673860e+00,  7.43385133e-03],
+       [-4.95567467e-01, -1.48743237e-01,  1.58346538e+00],
+       [-2.30545397e-01, -8.19912084e-01, -6.35565125e-01],
+       [-3.10052018e-01, -1.01463391e+00, -5.39252087e-01],
+       [-7.87091745e-01, -1.13892444e+00, -3.52098342e-01],
+       [ 1.06806275e+00, -5.29900854e-01, -4.63186676e-01],
+       [-5.94950744e-01,  1.64104035e+00,  1.95558394e+00],
+       [ 5.43533288e-02, -5.79617065e-01,  9.65091901e-01],
+       [-9.85858298e-01, -8.15769066e-01,  1.24965315e+00],
+       [-5.15444123e-01,  1.12266870e-01, -4.53336479e-01],
+       [-1.03223716e+00, -1.37921946e+00,  1.72574601e+00],
+       [ 4.71763090e-01,  9.16012279e-01, -5.08059796e-01],
+       [-2.30545397e-01, -7.03907592e-01, -2.13101117e-01],
+       [ 9.42177265e-01, -5.50615942e-01, -6.56524155e-01],
+       [ 5.91023021e-01,  1.36760119e+00, -6.27903860e-01],
+       [-4.88941916e-01, -6.83192504e-01,  1.39740611e+00],
+       [ 1.00732191e-01,  1.44217551e+00, -6.61285084e-01],
+       [ 1.33859950e-01,  9.98378173e-02, -6.47057021e-01],
+       [-1.05211382e+00,  3.40132836e-01, -9.10681195e-02],
+       [-8.86475021e-01,  5.51426733e-01, -2.24593013e-01],
+       [ 2.33243226e-01,  2.24177790e+00, -6.45415322e-01],
+       [ 1.37283813e+00,  1.89376443e+00, -6.91547078e-01],
+       [-3.56430880e-01, -1.98459448e-01, -4.72894658e-02],
+       [-9.59356091e-01,  8.41437963e-01, -5.27617975e-02],
+       [-8.73223918e-01,  3.94041511e+00,  5.03650669e+00],
+       [-9.79232746e-01,  4.64423364e-01, -4.60997743e-01],
+       [ 1.09456496e+00, -1.61172290e-01, -6.86840873e-01],
+       [ 1.56497913e+00, -4.96756713e-01, -6.84323600e-01],
+       [-5.28695226e-01,  9.98872631e-01, -2.13101117e-01],
+       [-4.75690812e-01,  7.66863646e-01, -3.20906051e-01],
+       [ 2.38654755e+00, -4.88470678e-01, -6.70697494e-01],
+       [-1.05211382e+00,  4.43757722e+00,  4.45220388e-01],
+       [ 1.34633592e+00,  5.92856908e-01, -6.43773622e-01],
+       [-9.12977228e-01,  6.34287084e-01, -2.71655066e-01],
+       [ 3.39252055e-01,  1.41317439e+00, -5.52932916e-01],
+       [-1.11174378e+00,  1.30959895e+00, -6.20242596e-01],
+       [-2.04043190e-01,  4.06421118e-01, -5.64424813e-01],
+       [-7.80466193e-01,  6.55002172e-01, -3.43889845e-01],
+       [-2.43796500e-01, -1.61172290e-01, -5.54574615e-01],
+       [ 1.73061792e+00, -2.85957275e-02, -6.86512533e-01],
+       [-3.56430880e-01, -1.93993960e+00, -6.55374966e-01],
+       [ 4.32009779e-01,  5.72141821e-01, -4.25427587e-01],
+       [-2.23919845e-01, -4.34611450e-01, -6.77045399e-01],
+       [-7.67215090e-01,  6.92289330e-01,  2.04314125e+00],
+       [-5.15444123e-01, -7.82624926e-01,  1.13473418e+00],
+       [ 3.00934941e+00,  9.15517821e-02, -6.90397889e-01],
+       [ 1.91613337e+00, -1.22178479e+00, -5.81936274e-01],
+       [-6.61206261e-01, -7.61909838e-01,  4.09526564e+00],
+       [-3.17788441e-02, -2.35746606e-01,  3.46718417e-01],
+       [ 5.97648573e-01, -1.13892444e+00, -6.52529353e-01],
+       [-2.17294293e-01,  1.29716990e+00, -2.67277201e-01],
+       [-1.44413224e-01,  1.90984204e-01, -5.32685289e-01],
+       [-2.70298707e-01, -9.56631664e-01, -4.34730551e-01],
+       [ 1.40485502e-01, -4.26325414e-01, -5.92880937e-01],
+       [-1.01898606e+00, -1.98459448e-01, -1.99278072e-02],
+       [-1.03223716e+00, -3.93181274e-01,  5.21833032e-01],
+       [-5.81699640e-01, -9.56631664e-01,  3.13760759e+00],
+       [-8.99726125e-01, -3.35179028e-01, -2.59068703e-01],
+       [-9.12977228e-01, -1.06849314e+00, -1.23902110e-01],
+       [ 1.03493499e+00, -6.99764574e-01, -6.78632375e-01],
+       [ 9.22300609e-01,  2.57272485e-01, -5.20646159e-01],
+       [ 7.97446649e-03, -5.75474047e-01,  3.46718417e-01],
+       [ 1.39934034e+00, -2.73033764e-01, -6.54718286e-01],
+       [-1.02561161e+00,  4.18355712e-02, -4.13388457e-01],
+       [-5.15444123e-01,  2.53178913e+00, -1.18429778e-01],
+       [ 1.49209806e+00, -5.13328784e-01, -6.87606999e-01],
+       [-1.19125040e+00,  5.26618073e+00,  1.84066497e+00],
+       [-1.00573495e+00,  1.28059783e+00,  1.98965461e-01],
+       [-9.12977228e-01,  6.63288207e-01,  5.71084018e-01],
+       [ 8.56045092e-01,  1.42146042e+00, -6.38848524e-01],
+       [-2.37170949e-01, -8.07483031e-01, -3.11055854e-01],
+       [-1.13824599e+00, -2.85957275e-02,  4.99943705e-01],
+       [-1.04548826e+00, -8.32341137e-01,  9.70564233e-01],
+       [-4.95567467e-01, -8.32341137e-01, -5.55669082e-01],
+       [-5.81699640e-01,  4.22993188e-01, -3.68515337e-01],
+       [ 1.28008040e+00, -1.23007082e+00, -6.28451094e-01],
+       [-2.83549811e-01, -3.51751098e-01, -2.55238071e-01],
+       [-6.41329606e-01, -2.56461694e-01,  2.14164322e+00],
+       [-9.46104987e-01,  2.65558520e-01,  3.37291785e+00],
+       [ 3.72379813e-01,  4.85138452e-01, -6.69055795e-01],
+       [ 1.64448575e+00, -7.37051732e-01, -6.71025834e-01],
+       [-9.26228332e-01,  5.76284838e-01, -4.31447152e-01],
+       [ 2.17452989e+00, -7.90910961e-01, -5.12437661e-01],
+       [ 1.27345485e+00,  4.31279223e-01, -6.82736624e-01],
+       [ 6.37401884e-01,  5.55569750e-01, -5.15173827e-01],
+       [-5.35320778e-01,  3.48418872e-01, -4.82887070e-01],
+       [-5.28695226e-01, -8.86200365e-01, -1.23902110e-01],
+       [-7.81577064e-02, -9.90270262e-02, -4.66470075e-01],
+       [ 2.12152548e+00, -7.57766820e-01, -6.76881229e-01],
+       [-9.99109401e-01,  1.74412134e-01, -5.46913351e-01],
+       [-7.14210675e-01,  6.92289330e-01,  1.20587450e+00],
+       [-6.81082917e-01, -6.66620434e-01,  1.41929543e+00],
+       [-6.74457365e-01, -1.28807307e+00,  1.93916695e+00],
+       [-5.75074088e-01, -8.90343383e-01, -5.82341292e-02],
+       [-4.02809743e-01, -7.61909838e-01, -6.33923425e-01],
+       [ 3.65754262e-01,  2.40700415e-01, -5.46913351e-01],
+       [-3.16677570e-01, -1.21349875e+00,  2.93231782e-02],
+       [-6.61206261e-01,  1.38003025e+00, -6.37754057e-01],
+       [ 1.14094382e+00, -5.17471801e-01, -6.37754057e-01],
+       [ 1.62460910e+00, -6.62477416e-01, -6.29545560e-01]])</code></pre>
+</div>
+</div>
+<p>Now, let’s apply DBSCAN clustering to find the clusters and anomalies.</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> DBSCAN(eps<span class="op">=</span><span class="fl">0.42</span>, min_samples<span class="op">=</span><span class="dv">7</span>).fit(x_data)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>anomaly_count <span class="op">=</span> <span class="bu">list</span>(db.labels_).count(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>cluster_count <span class="op">=</span> <span class="bu">len</span>(<span class="bu">set</span>(db.labels_)) <span class="op">-</span> (<span class="dv">1</span> <span class="cf">if</span> anomaly_count <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of clusters = </span><span class="sc">%d</span><span class="st">"</span> <span class="op">%</span> cluster_count)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of anomalies = </span><span class="sc">%d</span><span class="st">"</span> <span class="op">%</span> anomaly_count)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated number of clusters: 3
+Estimated number of noise points: 71</code></pre>
+</div>
+</div>
+<p>This function is used to plot the DBSCAN results on a scatterplot [from: handson-ml3 unsupervised learning].</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">## Taken from handson-ml3 unsupervised learning</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_dbscan(dbscan, X, size, show_xlabels<span class="op">=</span><span class="va">True</span>, show_ylabels<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    core_mask <span class="op">=</span> np.zeros_like(dbscan.labels_, dtype<span class="op">=</span><span class="bu">bool</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    core_mask[dbscan.core_sample_indices_] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    anomalies_mask <span class="op">=</span> dbscan.labels_ <span class="op">==</span> <span class="op">-</span><span class="dv">1</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    non_core_mask <span class="op">=</span> <span class="op">~</span>(core_mask <span class="op">|</span> anomalies_mask)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    cores <span class="op">=</span> dbscan.components_</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    anomalies <span class="op">=</span> X[anomalies_mask]</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    non_cores <span class="op">=</span> X[non_core_mask]</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    plt.scatter(cores[:, <span class="dv">0</span>], cores[:, <span class="dv">1</span>],</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>                c<span class="op">=</span>dbscan.labels_[core_mask], marker<span class="op">=</span><span class="st">'o'</span>, s<span class="op">=</span>size, cmap<span class="op">=</span><span class="st">"Paired"</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    plt.scatter(cores[:, <span class="dv">0</span>], cores[:, <span class="dv">1</span>], marker<span class="op">=</span><span class="st">'*'</span>, s<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>                c<span class="op">=</span>dbscan.labels_[core_mask])</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    plt.scatter(anomalies[:, <span class="dv">0</span>], anomalies[:, <span class="dv">1</span>],</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>                c<span class="op">=</span><span class="st">"r"</span>, marker<span class="op">=</span><span class="st">"x"</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    plt.scatter(non_cores[:, <span class="dv">0</span>], non_cores[:, <span class="dv">1</span>],</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>                c<span class="op">=</span>dbscan.labels_[non_core_mask], marker<span class="op">=</span><span class="st">"."</span>)</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> show_xlabels:</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>        plt.xlabel(<span class="st">"$x_1$"</span>)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>        plt.tick_params(labelbottom<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> show_ylabels:</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        plt.ylabel(<span class="st">"$x_2$"</span>, rotation<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>        plt.tick_params(labelleft<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"eps=</span><span class="sc">{</span>dbscan<span class="sc">.</span>eps<span class="sc">:.2f}</span><span class="ss">, min_samples=</span><span class="sc">{</span>dbscan<span class="sc">.</span>min_samples<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    plt.grid()</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    plt.gca().set_axisbelow(<span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.subplot(121)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>plot_dbscan(db, x_data, size<span class="op">=</span><span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-11-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Anomalies:"</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>dataset[db.labels_ <span class="op">==</span> <span class="op">-</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anomalies:</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">country</th>
+<th data-quarto-table-cell-role="th">child_mort</th>
+<th data-quarto-table-cell-role="th">exports</th>
+<th data-quarto-table-cell-role="th">health</th>
+<th data-quarto-table-cell-role="th">imports</th>
+<th data-quarto-table-cell-role="th">income</th>
+<th data-quarto-table-cell-role="th">inflation</th>
+<th data-quarto-table-cell-role="th">life_expec</th>
+<th data-quarto-table-cell-role="th">total_fer</th>
+<th data-quarto-table-cell-role="th">gdpp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">7</td>
+<td>Australia</td>
+<td>4.8</td>
+<td>19.8</td>
+<td>8.73</td>
+<td>20.9</td>
+<td>41400</td>
+<td>1.160</td>
+<td>82.0</td>
+<td>1.93</td>
+<td>51900</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">8</td>
+<td>Austria</td>
+<td>4.3</td>
+<td>51.3</td>
+<td>11.00</td>
+<td>47.8</td>
+<td>43200</td>
+<td>0.873</td>
+<td>80.5</td>
+<td>1.44</td>
+<td>46900</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>Bahamas</td>
+<td>13.8</td>
+<td>35.0</td>
+<td>7.89</td>
+<td>43.7</td>
+<td>22900</td>
+<td>-0.393</td>
+<td>73.8</td>
+<td>1.86</td>
+<td>28000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>Bahrain</td>
+<td>8.6</td>
+<td>69.5</td>
+<td>4.97</td>
+<td>50.9</td>
+<td>41100</td>
+<td>7.440</td>
+<td>76.0</td>
+<td>2.16</td>
+<td>20700</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">13</td>
+<td>Barbados</td>
+<td>14.2</td>
+<td>39.5</td>
+<td>7.97</td>
+<td>48.7</td>
+<td>15300</td>
+<td>0.321</td>
+<td>76.7</td>
+<td>1.78</td>
+<td>16000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">155</td>
+<td>Uganda</td>
+<td>81.0</td>
+<td>17.1</td>
+<td>9.01</td>
+<td>28.6</td>
+<td>1540</td>
+<td>10.600</td>
+<td>56.8</td>
+<td>6.15</td>
+<td>595</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">157</td>
+<td>United Arab Emirates</td>
+<td>8.6</td>
+<td>77.7</td>
+<td>3.66</td>
+<td>63.6</td>
+<td>57600</td>
+<td>12.500</td>
+<td>76.5</td>
+<td>1.87</td>
+<td>35000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">159</td>
+<td>United States</td>
+<td>7.3</td>
+<td>12.4</td>
+<td>17.90</td>
+<td>15.8</td>
+<td>49400</td>
+<td>1.220</td>
+<td>78.7</td>
+<td>1.93</td>
+<td>48400</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">162</td>
+<td>Vanuatu</td>
+<td>29.2</td>
+<td>46.6</td>
+<td>5.25</td>
+<td>52.7</td>
+<td>2950</td>
+<td>2.620</td>
+<td>63.0</td>
+<td>3.50</td>
+<td>2970</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">164</td>
+<td>Vietnam</td>
+<td>23.3</td>
+<td>72.0</td>
+<td>6.84</td>
+<td>80.2</td>
+<td>4490</td>
+<td>12.100</td>
+<td>73.1</td>
+<td>1.95</td>
+<td>1310</td>
+</tr>
+</tbody>
+</table>
+
+<p>71 rows × 10 columns</p>
+</div>
+</div>
+</div>
+</section>
+<section id="resources" class="level2">
+<h2 class="anchored" data-anchor-id="resources">Resources</h2>
+<p>https://www.kaggle.com/datasets/rohan0301/unsupervised-learning-on-country-data/data</p>
+<p>https://commons.wikimedia.org/wiki/File:Physical_Map_of_the_World_(2021).svg</p>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -227,6 +1094,57 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
   function tippyHover(el, contentFn) {
     const config = {
       allowHTML: true,
@@ -385,4 +1303,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/juliachenn/cs5805-blogproject/blob/main/posts/5-anomaly-outlier-detection/index.ipynb" class="toc-action">View source</a></p></div></div></div></div></footer></body></html>
